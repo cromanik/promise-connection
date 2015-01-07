@@ -3,5 +3,5 @@
 	"port": 8080,
 	"before_tests": "npm run build",
 	"src_files": ["index.js", "lib/*.js", "test/*.js"],
-	"serve_files": ["dist/promise-connection.js", "test/*.js"],
+	"serve_files": ["dist/promise-connection.js", "test/*.js"]
 }
