@@ -1,5 +1,7 @@
 var UUID = require('./lib/uuid');
-
-module.exports = {
+var PC = module.exports = {
   UUID: UUID,
+  Promise: undefined
 };
+
+PC.Connection = require('./lib/connection');
