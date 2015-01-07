@@ -4,7 +4,6 @@
   "description": "Promise/A+ utilities for abstracting remote window requests on message ports.",
   "main": "index.js",
   "scripts": {
-    "saucie": "saucie",
     "test": "testem ci",
     "build": "mkdir -p dist && browserify index.js -s promise-connection -o dist/promise-connection.js && uglifyjs < dist/promise-connection.js > dist/promise-connection.js.min && stat -f '%z %N' dist/*"
   },
