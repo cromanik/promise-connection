@@ -1,6 +1,28 @@
 var expect = chai.expect;
 var debug = false;
 
+// fake MessageChannel for firefox or other non-chromy tests
+if (!window.MessageChannel) {
+  window.MessageChannel = function() {
+    var port1 = new MockPort();
+    var port2 = new MockPort();
+    port1.postMessage = function(data) {
+      setTimeout(function() {
+        port2.onmessage({ data: data });
+      });
+    };
+    port2.postMessage = function(data) {
+      setTimeout(function() {
+        port1.onmessage({ data: data });
+      });
+    };
+    return {
+      port1: port1,
+      port2: port2
+    };
+  }
+}
+
 function MockPort() {
   this.postMessage = sinon.spy();
 }
