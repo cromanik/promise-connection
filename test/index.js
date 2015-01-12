@@ -145,17 +145,12 @@ describe('promiseConnection', function() {
           return Promise.resolve();
         });
 
-        it('resends its own connection', function() {
-          expect(port.postMessage.callCount).to.equal(1);
-          var data = port.postMessage.args[0][0];
-          expect(data._type).to.equal('connect');
+        it('does not resend its own connection', function() {
+          expect(port.postMessage.callCount).to.equal(0);
         });
 
-        it('becomes connected when remote replies', function() {
-          expect(connection._connecting).to.be.ok;
-          expect(connection._connected).to.not.exist;
-          port.postMessage.reset();
-          port.recvmock({ _type: 'resolve', _id: 'connect', value: true })
+        it('became connected', function() {
+          // this became connected because it had already sent a "connect"
           return connection.connected.then(function() {
             expect(connection._connecting).to.not.exist;
             expect(connection._connected).to.be.ok;
@@ -169,7 +164,6 @@ describe('promiseConnection', function() {
           });
         });
       });
-
     });
   });
 
