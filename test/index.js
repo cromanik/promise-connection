@@ -165,6 +165,45 @@ describe('promiseConnection', function() {
         });
       });
     });
+
+    describe('on a MessageChannel', function() {
+      var ports, local, remote;
+      beforeEach(function() {
+        ports = new MessageChannel();
+        options = {};
+        local = new Connection(ports.port1, {}, { debug: true });
+        remote = new Connection(ports.port2, {}, { debug: true });
+
+        return local.connected;
+      });
+      it('conneted', function() {
+        expect(remote._connected).to.be.ok;
+        expect(local._connected).to.be.ok;
+      });
+
+      it('rejects an undefined method invoke', function() {
+        return local.invoke('noMethod').then(function() {
+          throw new Error('unexpected success');
+        }, function(e) {
+          expect(e.message).to.equal('PromiseConnection: Unknown method noMethod');
+          expect(e.number).to.equal(undefined);
+        });
+      });
+
+      it('calls remote method', function() {
+        remote.local.method = sinon.spy(function() {
+          return Math.random();
+        });
+        var args = [1, 2, 3];
+        return local.invoke('method', args)
+          .then(function(result) {
+            expect(remote.local.method.callCount).to.equal(1);
+            expect(result).to.equal(remote.local.method.returnValues[0]);
+            expect(remote.local.method.args[0]).to.deep.equal(args);
+          });
+      });
+
+    });
   });
 
   describe('.extend()', function() {
