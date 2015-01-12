@@ -1,4 +1,5 @@
 var expect = chai.expect;
+var debug = false;
 
 function MockPort() {
   this.postMessage = sinon.spy();
@@ -38,7 +39,8 @@ describe('promiseConnection', function() {
       var port, local, options, connection;
       beforeEach(function() {
         port = new MockPort();
-        local = {};
+        local = {
+        };
         options = {
           autoConnect: false
         };
@@ -171,8 +173,8 @@ describe('promiseConnection', function() {
       beforeEach(function() {
         ports = new MessageChannel();
         options = {};
-        local = new Connection(ports.port1, {}, { debug: true });
-        remote = new Connection(ports.port2, {}, { debug: true });
+        local = new Connection(ports.port1, {}, { debug: debug });
+        remote = new Connection(ports.port2, {}, { debug: debug });
 
         return local.connected;
       });
@@ -201,6 +203,55 @@ describe('promiseConnection', function() {
             expect(result).to.equal(remote.local.method.returnValues[0]);
             expect(remote.local.method.args[0]).to.deep.equal(args);
           });
+      });
+
+      describe('remote promises', function() {
+        var promise, resolve, reject, result;
+        beforeEach(function() {
+          promise = new Promise(function(res, rej) {
+            resolve = res;
+            reject = rej;
+          });
+          var remoteCalled;
+          var gotRemote = new Promise(function(resolve) {
+            remoteCalled = resolve
+          });
+          remote.local.promise = sinon.spy(function() {
+            remoteCalled();
+            return promise;
+          });
+          result = local.invoke('promise');
+
+          return gotRemote;
+        });
+
+        it('does not resolve or reject', function() {
+          var invalid = false;
+          function invalidate() { invalid = true; }
+          // should not reply yet
+          result.then(invalidate, invalidate);
+          expect(remote.local.promise.callCount).to.equal(1);
+          return Promise.resolve()
+            .then(function() {
+              expect(invalid).to.be.false;
+            });
+        });
+        it('resolves on resolve', function() {
+          var obj = { test: true };
+          resolve(obj);
+          return result.then(function(result) {
+            expect(result).to.deep.equal(obj)
+          });
+        });
+        it('rejects on reject', function() {
+          var obj = { test: true };
+          reject(obj);
+          return result.then(function() {
+            throw new Error('unexpected resolve')
+          }, function(result) {
+            expect(result).to.deep.equal(obj)
+          });
+        });
       });
 
     });
