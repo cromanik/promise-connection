@@ -8,3 +8,4 @@ var PC = module.exports = {
 };
 
 PC.Connection = require('./lib/connection');
+PC.WindowBroker = require('./lib/window-broker');
