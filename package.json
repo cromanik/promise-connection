@@ -1,6 +1,6 @@
 {
   "name": "promise-connection",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Promise/A+ utilities for abstracting remote window requests on message ports.",
   "main": "index.js",
   "scripts": {
